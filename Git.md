@@ -8,7 +8,7 @@ it relies on the notion of branches.
 This is a client/Server kind of code management where a repository hosts the unique source of truth. interestingly, the client side allows for branches creation as well.
 
 ## WHERE to get
-got to http://git-scm.com
+got to https://git-scm.com/
 where the installer can be downloaded from 
 
 note in linux
@@ -99,3 +99,11 @@ error.logs
 ````
 then the error.logs file will not be added and therefore not be monitored.
 this is pretty usefull when using 'compiling' engines or templating ones. In such situation, only the source code is to be monitored.
+
+## CODING ENVIRONMENT
+
+### VISUAL STUDIO CODE
+plug in: GitLens GitHD (*****)
+
+### DockerHub
+a reference one shall exist with a repository configured on it.
