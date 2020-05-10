@@ -1,0 +1,2 @@
+- [ ] in git add a section for put "proper" commit messages
+- [ ] 
