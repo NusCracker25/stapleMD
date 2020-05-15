@@ -1,2 +1,96 @@
 - [ ] in git add a section for put "proper" commit messages
-- [ ] 
+- [ ] consider adding loopback
+- [ ] analyse tutorial for websocket (realtime chat with rooms --> traversy)
+- [ ] concerning back end, consider running tutorial for loopback, sails js
+- [ ] complete a page on websocket.io
+- [ ] dig in realtime database
+- [ ] usage of nodejs
+- [ ] datasheet on express
+- [ ] encryption
+- [ ] add a file on semantic versioning
+- [ ] add a file describing coding guideline
+  - [ ] various notation for variable (camel,...)
+- [ ] comparing languages
+  - [ ] C
+  - [ ] C++
+  - [ ] java
+  - [ ] pascal
+  - [ ] javascript
+    - [ ] ES06
+    - [ ] typescript
+    - [ ] jsx
+  - [ ] C#
+  - [ ] Perl
+  - [ ] Dart
+  - [ ] Python
+- [ ] UI framework
+  - [ ] Flutter
+  - [ ] Electron
+  - [ ] HTML/CSS
+  - [ ] materialize
+  - [ ] ...
+- [ ] define a generic header for source code files. 
+- [ ] for server (with port and other parameters) look into the best usage of configuration files with json ones for instance (issue a markdown on it)
+- [ ] framework de test automatique (karma et autre)
+- [ ] outil de logging (winston)
+- [ ] chaine CI/CD/CT avec docker et jenkins
+- [ ] regarder le grpc
+- [ ] faire md uniquement sur express
+- [ ] realtime database
+- [ ] Database
+  - [ ] relational
+  - [ ] no relational
+  - [ ] document
+  - [ ] graph data bases
+- [ ] IA
+  - [ ] neural network
+  - [ ] Deep learning
+  - [ ] big data
+- [ ] JS library
+  - [ ] three
+  - [ ] d3.js
+
+- [ ] engineering markdown
+  - [ ] cycle de conception
+  - [ ] outil de la simulation
+    - [ ] 1D
+    - [ ] équa diff
+    - [ ] système
+    - [ ] 3D
+      - [ ] éléments finis
+      - [ ] volumes fine
+    - [ ] optique
+      - [ ] ray trace
+      - [ ] physics based rendering
+  - [ ] modélisation
+  - [ ] physique
+    - [ ] electrique
+      - [ ] Electronique
+      - [ ] réseaux électriques
+      - [ ] moteurs électriques
+      - [ ] transformateurs
+      - [ ] génération
+    - [ ] mécanique
+      - [ ] dynamique
+      - [ ] multi body
+      - [ ] rdm
+- [ ] software development
+  - [ ] test
+    - [ ] unit test
+    - [ ] integration test
+    - [ ] need for automation of those
+    - [ ] usage of framework
+- [ ] define coding guideline for project
+- [ ] find proper documentation extension for VSCODE
+- [ ] get familiar with emmet extension (code snippets for js, angular, three, d3js, html, css...)
+- [ ] document the todo in code within clear syntax
+- [ ] user Taiga to manage project
+- [ ] look into Curl language
+- [ ] Graphics rendering
+  - [ ] map of rendering engines
+    - [ ] unreal
+    - [ ] unity
+    - [ ] pixies
+    - [ ] VR
+    - [ ] compare them explain how they work
+  - [ ] ray trace...
