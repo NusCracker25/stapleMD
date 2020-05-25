@@ -116,7 +116,7 @@ It is a middleware that either filters out or in request for external domain, in
 ````javascript
 app.use(cors());
 ````
-**MORE DETAILS**: can be found on cors [website](https://github.com/expressjs/cors) to finely configure it
+**MORE DETAILS**: can be found on cors [website](https://github.com/expressjs/cors) to fine configure it
 
 Other midleware to be used is ``body-parser``; this one helps in reading out the content of request, either expressed in json format of else
 
@@ -393,7 +393,7 @@ module.exports = function(passport){
     //options for the strategy
     let opts = {};
     //where the jwt is to be taken from in the request (here we take it from the AuthHeader, could be Bearer..)
-    opts.jwtFromRequest = ExtractJwt.fromAuthHeader();
+    opts.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme('jwt');
     //secret for encryption of information
     opts.secretOrKey = config.secret;
     //new strategy is then created and used by passport
@@ -430,8 +430,10 @@ app.use(passport.session());
 require('./config/passport')(passport);
 
 ````
-
-
+##### More on JWT
+[here](https://medium.com/@siddharthac6/json-web-token-jwt-the-right-way-of-implementing-with-node-js-65b8915d550e)
+[snippets](https://www.codota.com/code/javascript/functions/jsonwebtoken/sign)
+[or here](https://www.npmjs.com/package/jsonwebtoken)
 
 #### AUTHENTICATE USERS
 back to ``users.js`` where the authenticate method will now be implemented.
@@ -523,6 +525,236 @@ module.exports.comparePassword(canditatePwd, hash, callback){
 **__NOTE__**
 Documentation for method is to be added to support large development... tools are existing to support us with management of it also with generation of header, skeleton. they can be added to VSCode
 
+#### Route protection (user the jwt)
+with a mechanism now capable of identifying who is truly requesting something from server, one can easily protect access to data from the server itself.
+This is done for each route.
+
+````javascript
+/**
+ * provides the detail on the users profile
+ */
+router.get('/profile', passport.authenticate('jwt' , {session:false}), (req, res, next)=>{
+    res.send('PROFILE');
+});
+````
+to protect a route, the second parameter shall be used.
+````javascript
+... passport.authenticate('jwt' , {session:false}) ...
+````
+#### RESOURCES FOR BACK END
+- [ ] error handler
+https://www.freecodecamp.org/news/learn-how-to-handle-authentication-with-node-using-passport-js-4a56ed18e81e/
+
+
+### FRONT END - ANGULAR
+#### Introduction
+the front end is 'what the user sees from the application'. It can be viewed in any webbrowser and as such is mostly HTML/CSS/JS built.
+Angular is framework developped by Google, Inc. and made available to the community under the MIT license.
+It has very large community of users and a release cycle of 6 months. By the time these lines are written, the activ version is Angular 9.
+More details are given in our Angular.MD.
+Angular is mostly geared towards SPA (Single Page Application), but this shall not be seen as a limitation.
+Angular is Typescript based.
+
+Our front will be build with the Material design, with support of themes and shall ultimately support internationalization.
+
+#### First Step: Creation of the app
+
+Angular has a Command Line Interface tool which supports most of the operation necessary for the creation of the app:
+````
+npm install -g @angular/cli
+````
+once installed one can check the version of it
+````
+ng version
+````
+
+##### Creation app
+thanks to Angular CLI the initial steps for creating an app are simple
+````
+ng new <myapp> --routing --style=sass --prefix=<my_prefix>
+````
+Standard basic usage would be ``ng new <myapp>``: it creates a default app and its workspace
+
+since we are likely to make it a bit more complex let's add a Routing module automatically with the option ``--routing``
+the ``--style=sass`` option will serve down the road for the theming of our application.
+Finally, let's define the prefix we want to use in our component per the app name for instance, this will help identifying easily what is a custom component.
+
+Once the workspace and the application are created, using the ``ng serve`` or ``ng s`` command will compile (test if required) the code for the application, then create the appropriate webserver for testing purpose. Do open a webbrowser and navigate to   http://localhost:4200/.
+
+##### Add Angular Material
+the material design style is an interesting piece of work realized by the Google team as one of the most exhaustive guideline for User Experience and User Interface.
+It has an angular compliant implementation (also created by Google's team): http://material.angular.io
+It can be added to your app with the command 
+````
+ng add @angular/material
+````
+this command will need some more information before doing the proper setup. Answer them with your own preferences.
+
+##### Add PWA support
+although not mandatory, if you plan to make your MEAN app a progressive webapp, it is better to do it from the very begining
+````
+ng add @angular/pwa
+````
+
+#### settings for angular projet
+compilation 'output directory' should be defined within the ``angular.json`` file where the settings for the project are to be found.
+
+#### Structure for the Angular app
+there exist many approaches for structuring the files and folder, the modules in Angular Application.
+We follow the core/shared/feature approach.
+Services are part of the code module.
+
+Create the appropriate modules in the app
+````
+ng g m core
+````
+or 
+````
+ng generate module core
+````
+note the camel case notation
+
+This creates a module as a submodule of the module where the command line is situated. It also registers the newly created modul
+
+The ``core`` module embeds the core of the application, datamodel, where the business logic (client side) is expressed.
+The ``shared`` module embeds the common pieces for all features (this is where reusable components will be created.)
+The ``feature`` module has the expression of the workflow and user interaction capabilities.
+
+The core and shared modules are for supporting cross concerns components or modules. As such, there is no need for adding a ``Routing`` module to them. On the other hand, the ``feature`` module needs a Router.
+
+#### SHARED Module
+The shared module will bring all the common modules such as the Material one (btw, this is good practice to have the material components to be used in a module as it saves the burden of importing them into each component you will create).
+
+Other useful components are the Http one and http client.
+
+#### TODO: add section on routing and preparing of the core of application
+usage of navigation schematic and positionning of routers
+pay attention to the address of the links to be used
+
+#### TSLINT.json
+the ``tslint.json`` file in your app folder contains some interesing settings for the compiler.
+amongst them, it is quite useful to enrich the section ``compilerOPtions`` with a subsection ``paths``. This one shall contain the list of submodule in your application and will allow you to then use an easy reading description of your imports statement by referring to a module with the ``@`` symbol: e.g
+
+````javascript
+import { User} from '@core/users'
+````
+````json
+{   
+    "compileOnSave": false,
+    "compilerOptions": {
+        "baseUrl": "./",
+        "outDir": "./dist/out-tsc",
+        "sourceMap": true,
+        "declaration": false,
+        "downlevelIteration": true,
+        "experimentalDecorators": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "importHelpers": true,
+        "target": "es2015",
+        "lib": [
+          "es2018",
+            "dom"
+        ],
+        "paths": {
+            "@app/*": ["src/app/*"],
+            "@feature/*" : ["src/app/feature"],
+            "@core/*" : ["src/app/core"],
+            "@shared/*" : ["src/app/shared"],
+            "@environments/*": ["src/environments/*"]
+        }
+        ...
+    }
+}
+````
+
+
+#### TODO document the creation of the auth service
+certainly have a subsection on observable at this place
+more on security and JWT: [here](https://blog.angular-university.io/angular-jwt-authentication/) or [here](https://jasonwatmore.com/post/2020/04/19/angular-9-jwt-authentication-example-tutorial)
+
+
+#### Usage of environements.js
+within the your ``myapp\src`` folder, one can find a folder ``environments`` whithin which an ``environments.js`` file allows to add you specific environment variables
+It contains a ``json`` structured object for you to add your app settings in:
+
+````javascript
+export const environment = {
+  production: false,
+  apiURL: 'http://localhost:3000'
+};
+````
+Then for environment file can be imported when needed.
+
+#### USAGE OF INTERCEPTORS FOR ADDING TOKEN
+we'll create ann HTTP interceptor that will be used to attach the JWT access token to the authorization header of the ongoing requests. This interceptor is part of the core of our applicaiton. As such, have it created in the ``core`` module.
+
+Create the src/app/auth.interceptor.ts file and add the following code:
+````javascript
+
+import { Injectable } from "@angular/core";
+import { HttpInterceptor, HttpRequest, HttpHandler } from "@angular/common/http";
+import { AuthService } from "./auth.service";
+
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+    constructor(private authService: AuthService) { }
+
+    intercept(req: HttpRequest<any>, next: HttpHandler) {
+        const accessToken = this.authService.getAccessToken();
+        req = req.clone({
+            setHeaders: {
+                Authorization: `JWT $[accessToken}` 
+            }
+        });
+        return next.handle(req);
+    }
+}
+````
+
+The interceptor is an @Injectable object (which must be made available in the root of the application). It must have access the auth service (to provide the request with the appropriate ``access_token`` when this one is available). Eventually, the said token is added into the headers of the request.
+This interceptor might be smarter to only consider request sent to authentication backend.
+
+do not forget to add the interceptor into the core module.
+
+````javascript
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './auth.interceptor';
+.
+.
+@NgModule({
+    ...
+    providers: [
+        {
+        provide: HTTP_INTERCEPTORS,
+        useClass: AuthInterceptor,
+        multi: true
+        }
+    ]
+    ...
+});
+````
+/
+#### Enrich the behavior of the home page (user menu by hidding of showing items depending on the login status)
+to start with, the AuthService shall be referenced in the 'home' component
+bring it into the constructor
+````javascript
+constructor(... , private auth: AuthService, ...){}
+
+````
+#### MORE on MEAN
+- https://jasonwatmore.com/post/2020/05/15/angular-9-role-based-authorization-tutorial-with-example
+- https://www.techiediaries.com/angular-9-8-mean-stack-authentication-tutorial-and-example-with-node-and-mongodb/
+
+
+#### More on Angular
+- [home website](https://angular.io/) 
+- [Angular CLI](https://cli.angular.io/) 
+- [material](https://material.angular.io/)
+  - [theming](https://medium.com/@tomastrajan/the-complete-guide-to-angular-material-themes-4d165a9d24d1)
+  - [creating your theme](https://www.positronx.io/create-angular-material-8-custom-theme/)
+
+
 ## MORE DETAILS
 
 ### Usage of POSTMAN
@@ -531,3 +763,26 @@ the extension version has been deprecated years ago and now the standalone versi
 
 it can be used to test REST API
 an alternative is RestEasy or even the command line Curl
+
+
+### Adding logging capacity on back-end
+Logging is about tracking what happens in your code.
+It can be used for debug but also for maintainance purposes depending on where you are at with your development.
+Very often, different level of logging are exposed (info, error, wanring, debug, verbose).
+for maintainance purpose, logging requires to be searchable, indexable and is often associated to some elastic search capability
+#### References
+Among js library for logging, one can find
+- [Winston](https://github.com/winstonjs/winston): a generic logging utility 
+- [Morgan](https://github.com/expressjs/morgan): a looging utility for expressjs server. logs requests and routes for them
+- also not that [ngx-logger](https://github.com/dbfannin/ngx-logger#readme) : logging mechanism for angular application (we'll come to that later on)
+  
+  #### using winston
+  a branch is created on the back-end of authentication for adding winston
+  ````
+  git branch chore_logWinston
+  ````
+  
+  then switch to the said branch:
+  ````
+  git checkout chore_logWinston
+  ```` 

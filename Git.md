@@ -69,6 +69,21 @@ git commit -m "here your commit message"
 commit the changes with the commit message as expressed above
 
 ### working with remote repository
+The git remote add command takes two arguments:
+
+A remote name, for example, origin
+A remote URL, for example, https://github.com/user/repo.git
+For example:
+````
+git remote add origin https://github.com/user/repo.git
+# Set a new remote
+
+$ git remote -v
+# Verify new remote
+> origin  https://github.com/user/repo.git (fetch)
+> origin  https://github.com/user/repo.git (push)
+````
+
 ````
 git push
 ````
@@ -89,6 +104,13 @@ clones the repository into a new directory
 git branch name
 ````
 creates the branch (local) with the name <name>. it is recommended to define some naming convention for branches
+
+with the ``git branch`` command, one gets the entire list of available branches and switching to a specific branch is done with 
+````
+git checkout <branch_name>
+````
+note that with gitbash as command line one has access with ``tab`` key to a nice auto-completion facility
+
 
 
 ### usage of the gitignore
