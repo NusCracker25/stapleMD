@@ -223,7 +223,7 @@ const config = require('./config/database');
 connection to the database it then straight forward as the structure of the database object which has been created is aligned with the expected one from the mongoose connector.
 We also check the connection to database is effective in code
 ````javascript
-mongoose.connect(config.database);
+mongoose.connect(config.database, {useNewUrlParser: true});
 //detecton of connection
 mongoose.connection.on('connected', ()=>{
     console.log('Connected to database is done'+config.database);
@@ -776,13 +776,161 @@ Among js library for logging, one can find
 - [Morgan](https://github.com/expressjs/morgan): a looging utility for expressjs server. logs requests and routes for them
 - also not that [ngx-logger](https://github.com/dbfannin/ngx-logger#readme) : logging mechanism for angular application (we'll come to that later on)
   
-  #### using winston
+  #### using winston & Morgan
   a branch is created on the back-end of authentication for adding winston
   ````
   git branch chore_logWinston
   ````
-  
   then switch to the said branch:
   ````
   git checkout chore_logWinston
   ```` 
+
+A basic usage of winston is to output messages on the console.
+A good practice is to identify a separate ``logger.js`` file. This one could be located wherever we want. Let's create this logger configuration within our ``config`` folder
+
+````
+npm install --save winston
+````
+will install the latest version of winston and save it to the ``package.json`` file.
+Eventually in ``logger.js`` add the following lines
+
+````javascript
+const winston = require('winston');
+
+//creation of the logger
+// this logger sends all info level message to the console
+const logger = winston.createLogger({
+    level: 'debug',
+    defaultMeta: { service: 'AuthLogger' },
+    transports: [
+        new winston.transports.Console({
+             format: winston.format.combine(
+                winston.format.timestamp(),
+                winston.format.json(),
+                winston.format.metadata({fillExcept: ['timestamp', 'service', 'level', 'message']}),
+                winston.format.colorize()
+           ) ,
+           level: 'error'
+       })
+]
+});
+
+logger.info('this is an info');
+logger.warn('this is a warning');
+logger.error('this is an error log');
+logger.debug('this is a debug log');
+logger.log('info', 'this is another info log');
+
+module.exports = logger;
+````
+This creates a simple logger with the name ``authLogger`` and a unique ``transports`` which the usual Console line.
+It filters the level of log for this transports to ``error`` and below.
+Every log is augmented with the time stamp.
+The output format is set to json, more suitable for machine processing of logs when e.g. stored in database.
+it can also be more human understandable with ``winston.format.json()``
+
+Executing the server generates the output:
+````
+{"message":"this is an error log","level":"error","service":"AuthLogger"}
+````
+To use this logger within the server itself, extend the ``require`` section with 
+````javascript
+const logger = require('./config/logger');
+````
+then the logger can be used within the code with either
+````javascript
+ logger.info( 'Connected to database is done '+config.database);
+````
+or depending on how it is preferred to access each of the login level.
+````javascript
+logger.log('error','Database error: '+err);
+````
+
+It is then a good practice to configure the console application with log files or storage to a mongodb for instance.
+This is achieve by defining the ``transports`` as ``File`` and specifying the ``filename`` propertie
+````javascript
+const logger = createLogger(
+    ...
+    transports: [...
+           new winston.transports.File({
+           filename: 'auth_info.log',
+           level: 'info',
+           format: winston.format.combine(
+                winston.format.timestamp(), winston.format.json(),
+                winston.format.metadata({fillExcept: ['timestamp', 'service', 'level', 'message']}),
+                winston.format.colorize()//,
+          // this.winstonConsoleFormat()
+            )
+        })
+    ...
+    ]
+)
+````
+this adds a file transport which creates a file named ``authLog.log`` and outputs all log messages into it.
+
+Last but not least, a mongodb can be used to persist the logs. A transport maintained by the community shall then added
+````
+npm install --save winston-mongodb 
+````
+
+then into the ``logger.js``, add a new transporter
+````javascript
+const winstonMdB = require('winston-mongodb');
+
+...
+
+       new winstonMdB.MongoDB({
+           db:config.database,
+           collection: config.logcollection,
+           level: 'info',
+           options: { 
+               useUnifiedTopology: true
+            },
+           format: winston.format.combine(
+                winston.format.timestamp(), winston.format.json(),
+                winston.format.metadata({fillExcept: ['timestamp', 'service', 'level', 'message']}),
+                winston.format.colorize()//,
+          // this.winstonConsoleFormat()
+            )
+        })...
+````
+Note that the ``configs\config.js`` file has been modified into:
+````javascript
+module.exports={
+    database:'mongodb://localhost:27017/meanauth',
+    userscollection: 'users',
+    logcollection: 'authlog',
+
+    secret:'asecret'
+}
+````
+#### more on winston
+ - [zetcode](http://zetcode.com/javascript/winston/)
+ - [Stackify](https://stackify.com/winston-logging-tutorial/)
+ - [from zero to hero](https://gkoniaris.gr/nodejs/nodejs-logging-from-beginner-to-expert/)
+
+##### Winston option
+The createLogger function accepts the following options:
+
+|Name	|Default	|Description
+|---    |---        |---
+|level	|info	|maximum level of log messages to log
+|levels|	winston.config.npm.levels	|the set of level message types chosen
+|format	|winston.format.json	|the format of log messages
+|transports	|no transports	|set of logging destinations for log messages
+|exitOnError	|true	|whether handled exceptions cause process.exit
+|silent	|false	|if true, all logs are suppressed
+
+##### Winston level of log (as provided in npm)
+The following are the default npm logging levels:
+and best practices to follow
+|level log | usage | potentially exposed to user
+|---        |---|---
+|0: error | to log all situation where error is potentially blocking for user | YES
+|1: warn| to log abnormal situation where one should not be while not preventing the execution | YES
+|2: info| to log basic information informative of success of a function, evolution of program | YES
+|3: http| to log http related messages | likely not
+|4: verbose| everything about the program, likely used for profiling or to get very detailled information
+|5: debug| used by dev team to trace program | certainly not
+|6: silly| name speaks for itself | certainly not

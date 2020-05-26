@@ -6,6 +6,7 @@
 - [ ] dig in realtime database
 - [ ] usage of nodejs
 - [ ] datasheet on express
+- [ ] add a logger on server and on front end of mean (winston + morgan on back-end),ngx-logger on front end (if made with Angular)
 - [ ] encryption
 - [ ] add a file on semantic versioning
 - [ ] add a file describing coding guideline
