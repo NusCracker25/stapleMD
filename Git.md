@@ -111,6 +111,11 @@ git checkout <branch_name>
 ````
 note that with gitbash as command line one has access with ``tab`` key to a nice auto-completion facility
 
+once done with your work in the branch, it can be merged in master for example.
+````
+git merge <branch-name>
+````
+will merge the refered branch within the active one. So, first checkout to the master, then ``git merge <yourbranch>``
 
 
 ### usage of the gitignore
@@ -129,3 +134,7 @@ plug in: GitLens GitHD (*****)
 
 ### DockerHub
 a reference one shall exist with a repository configured on it.
+
+## GIT Messages
+writing good commit messages
+[here](https://chris.beams.io/posts/git-commit/) and [here](https://www.freecodecamp.org/news/writing-good-commit-messages-a-practical-guide/) 

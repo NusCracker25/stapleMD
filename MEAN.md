@@ -1,5 +1,7 @@
 # MEAN
 
+
+
 ## REFERENCES
 a skeleton for a MEAN Stack is presented on 
 https://github.com/NusCracker25/stapmean.git
@@ -37,14 +39,14 @@ do not forget to put the proper start option in the package.json file by adding 
 "start":"node app"
 
 #### dependencies needed
-express
-mongoose
-bcryptjs
-cors
-jsonwebtoken
-body-parser
-passport
-passport-jwt
+- express
+- mongoose
+- bcryptjs
+- cors
+- jsonwebtoken
+- body-parser
+- passport
+- passport-jwt
 
 ### SERVER and Routes
 create the file where the core code will be hosted
@@ -98,7 +100,7 @@ for defining the port to listen to, it is also useful to refer to an environment
 instead of running ````npm start```` one may use ``nodemon`` instead.
 ---
 
-##### 1st route
+#### 1st route
 
 before 'launching' the server, once can create as many routes as we want.
 the creation of routes follow the standard HTTP keyword for transaction (GET, SET, ...)
@@ -223,7 +225,11 @@ const config = require('./config/database');
 connection to the database it then straight forward as the structure of the database object which has been created is aligned with the expected one from the mongoose connector.
 We also check the connection to database is effective in code
 ````javascript
-mongoose.connect(config.database, {useNewUrlParser: true});
+mongoose.connect(config.database ,
+                 {
+                    useNewUrlParser: true,
+                    useUnifiedTopology: true
+                });
 //detecton of connection
 mongoose.connection.on('connected', ()=>{
     console.log('Connected to database is done'+config.database);
@@ -434,6 +440,19 @@ require('./config/passport')(passport);
 [here](https://medium.com/@siddharthac6/json-web-token-jwt-the-right-way-of-implementing-with-node-js-65b8915d550e)
 [snippets](https://www.codota.com/code/javascript/functions/jsonwebtoken/sign)
 [or here](https://www.npmjs.com/package/jsonwebtoken)
+[usage of jwt tokens](https://www.bbva.com/en/json-web-tokens-jwt-how-to-use-them-safely/)
+##### Types of JSON Web Tokens and use cases
+W#e’ll start by seeing what the main types of tokens are and the most important use cases.
+
+**Data token**: As the JWT serialized form is compact and easy to integrate in HTTP request JWT are often used as a mechanism of data interchange.
+**ID token:** Issued by an Identity Manager, on behalf of a client application, after authenticating the user. It allows the client application to get user information from the token in a safe way without the need of managing user credentials.
+A**ccess token:** Issued by an authorization server, on behalf of a client application, it allows the client application to access a protected resource on behalf of a user. This kind of token is used as an authentication and authorization mechanism by the client application towards the server holding the resource.
+JWT allow for interchange of data between peers in a more performant way than other standards (SAML) due to its smaller size and ease of parsing. This is what makes them ideal for the following use cases:
+
+Session data interchange between client and server: JWT are sometimes used to transmit GUI state and session information between the server and its clients. Usually they are unsecured tokens (without a signature).
+**Federated authentication:** It eliminates the need for applications to manage their user credentials, by delegating the process of user authentication to an identity provider. The provider generates a token, that is verifiable by the application, and that contains the data needed about the user.
+**Access authorization:** The token contains the information needed by an API server to decide if the operation requested by the token holder can be carried out.
+Each use case has different recipients (client application and API service), but in the case that you maintain control over both the application and the API service you can use a single token to address both authentication and authorization.
 
 #### AUTHENTICATE USERS
 back to ``users.js`` where the authenticate method will now be implemented.
@@ -905,10 +924,69 @@ module.exports={
     secret:'asecret'
 }
 ````
+to properly setup logging files, let's make sure the folder where to store those is properly created.
+
+using ``app-root-path`` allows to easily access from anywhere in the folder structure of the app to location of root dir
+
+````javascript
+...
+const path = require('path');
+const fs = require('fs');
+const appRoot = require('app-root-path');
+...
+// control existence of logs folder, and creates it in case of absence
+var logFolder = path.resolve(`${appRoot}`, config.logging.folder);
+fs.existsSync(logFolder) || fs.mkdirSync(logFolder);
+...
+````
+In this situation, the ``config.logging.folder`` properties is read from the config file.
+
+###### rotation of file for logging
+unsing the ``winston-daily-rotate-file`` permits to introduce an automated process which decides to create 1 new file for log every day.
+````javascript
+
+  // prepare for daily rotating logging files
+  require('winston-daily-rotate-file');
+  // creation of rotation on logging files
+  const infofile = new winston.transports.DailyRotateFile({
+    level: "info",
+    filename: path.resolve(logFolder, "application-%DATE%-info.log"),
+    datePattern: "YYYY-MM-DD-HH",
+    zippedArchive: true,
+    maxSize: "100m",
+    maxFiles: "14d" // keep logs for 14 days
+  });
+   
+  infofile.on("rotate", function(oldFilename, newFilename) {
+    // TODO: do something fun
+  });
+   
+  const errorfile = new winston.transports.DailyRotateFile({
+    level: "error",
+    filename: path.resolve(logFolder, "application-%DATE%-error.log"),
+    datePattern: "YYYY-MM-DD-HH",
+    zippedArchive: true,
+    maxSize: "20m",
+    maxFiles: "30d" // keep logs for 30 days
+  });
+   
+  errorfile.on("rotate", function(oldFilename, newFilename) {
+    // todo: upon logfile rotation do something if needed
+  });
+````
+
+then this ``transports`` can be binded to the logger
+````javascript
+const logger = winston.createLogger({
+  transports: [infofile, errorfile]
+});
+````
+
 #### more on winston
  - [zetcode](http://zetcode.com/javascript/winston/)
  - [Stackify](https://stackify.com/winston-logging-tutorial/)
  - [from zero to hero](https://gkoniaris.gr/nodejs/nodejs-logging-from-beginner-to-expert/)
+ - [very complete](https://jojozhuang.github.io/tutorial/express-js/express-combine-morgan-and-winston/)
 
 ##### Winston option
 The createLogger function accepts the following options:
@@ -934,3 +1012,121 @@ and best practices to follow
 |4: verbose| everything about the program, likely used for profiling or to get very detailled information
 |5: debug| used by dev team to trace program | certainly not
 |6: silly| name speaks for itself | certainly not
+
+
+##### add Morgan to log server information
+next to winston which provides the transport layer for logging. the usage of ``morgan`` permits to intercept all request received by a server. it is used as a middleware
+
+````
+npm install --save morgan
+````
+once morgan is installed, lets look into how to use it.
+Best option is to open a stream into the morgan logger.
+
+A stream is created to allow for further connection to it:
+````javascript
+// create a stream for further connection into logger
+logger.stream = {
+    write: function(message, encoding){
+        // select info level, so message is picked up by all
+        // todo: understand the logging level in winston
+        logger.info(message);
+    }
+}
+````
+and format is defined to add connection information into log.
+file ``logger.js``
+- [ ] rework the message to include body of request
+````javascript
+/**
+ * logs a request received by app to winston.
+ * then content can be enriched to also show the body
+ */
+logger.combinedFormat = function(err, req, res) {
+    // Similar combined format in morgan
+    // :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"
+    return `${req.ip} - - [${clfDate(
+      new Date()
+    )}] \"${req.method} ${req.originalUrl} HTTP/${req.httpVersion}\" ${err.status ||
+      500} - ${req.headers["user-agent"]}`;
+  };
+  ````
+eventually in ``app.js``, the middleware to morgan is added
+````javascript
+require('morgan');
+...
+/* add the morgan middleware for logging server activities */
+
+app.use(morgan("combined", {stream: logger.stream}));
+
+...
+````
+- [ ] rework the ``users.js`` file to include the logger mechanism
+
+keep in mind that ``morgan`` being a middleware, it can be installed before specific routers. it does not have to be installed for everything.
+seeing it differently, a powerful logging mechanism can be defined where each route has its own logging stream.
+
+
+
+#### Logginng for Angular
+in Angular application to, it is interesting to consider adding a logging mechanism
+it can easily be developped on your own using a service (see [here](https://www.codemag.com/Article/1711021/Logging-in-Angular-Applications))
+
+So first, install it with ``npm install --save ngx-logger`` into your app.
+
+Then the next thing to do is to import the required module in your app. Since we have structured our application code so as not to be clumsy; let's import it into our ``shared`` module.
+In ``src\app\shared\shared.module.ts`` add the following statement in import
+
+````javascript
+import { LoggerModule , NgxLoggerLevel } from 'ngx-logger';
+````
+then in the ``@NgModule``section
+
+````javascript
+@NgModule({
+  declarations: [],
+  imports: [
+    ...
+    // ngx logger module is used accross the app
+    LoggerModule.forRoot({ serverLoggingUrl: '/api/logs',
+                           level: NgxLoggerLevel.DEBUG,
+                           serverLogLevel: NgxLoggerLevel.OFF,
+                           disableConsoleLogging: false,
+                           colorScheme: ['purple', 'teal', 'gray', 'gray', 'red', 'red', 'red']
+                        }),
+    ...
+  ]
+});
+````
+The colorscheme allows to select the color of log wrt to severity leve ()
+Note the settings in this case, the server side logging is not activated. in case you need to do so, it is highly recommended to have dedicated log server or at least a log route in the back end.
+- [ ] create a log route in server
+  - [ ] not protected for default log route
+  - [ ] once user is logged, then logging messages should be routed to a specific stack
+  - [ ] all settings for logger module can be identified in a unique server
+For testing purpose, a specific module is also to be added. refer to the ``ngx-logger`` website to know more.
+
+Once imported and configure in your application, using the logger is fairly easy, there is a service which can be used in any component
+````javascript
+...
+import { NGXLogger } from 'ngx-logger';
+...
+    constructor(
+              private logger: NGXLogger
+              ) {}
+
+    onSubmit() {
+        this.logger.debug(' hits submit button');
+        ...
+    });
+````
+Ngx-logger offers different possibility to log:
+- Log level: NgxLoggerLevels: TRACE|DEBUG|INFO|LOG|WARN|ERROR|FATAL|OFF
+- ````javascript
+    this.logger.debug(' hits submit button');
+    this.logger.error(' hits submit button');
+    this.logger.fatal(' hits submit button');
+    this.logger.info(' hits submit button');
+    this.logger.log(' hits submit button');
+    this.logger.trace(' hits submit button');````
+- each log method can have lots of parameter --> pay attention to the fact that log has to remain functionnaly silent (do not interfere with variable, do not change their status...). also log, as much as possible should not impact performance (avoid the usage of costly operation in the message).

@@ -17,3 +17,8 @@ nodemon is an extension for node.js (to be installed globally). it allows for au
 npm install -g nodemon
 ````
 then when files are actually to be modified during development and to avoid having to relaunch over and over the same file, use the command line nodemon instead of "npm ..."
+
+## Good practices
+### Logging
+[here](https://www.twilio.com/blog/guide-node-js-logging)
+also use winston and morgan for http server log

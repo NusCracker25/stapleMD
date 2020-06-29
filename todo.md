@@ -1,12 +1,14 @@
-- [ ] in git add a section for put "proper" commit messages
+- [x] in git add a section for put "proper" commit messages
+  - [x] references to external website
+  - [ ] summarize best practices
 - [ ] consider adding loopback
-- [ ] analyse tutorial for websocket (realtime chat with rooms --> traversy)
+- [x] analyse tutorial for websocket (realtime chat with rooms --> traversy)
 - [ ] concerning back end, consider running tutorial for loopback, sails js
 - [ ] complete a page on websocket.io
 - [ ] dig in realtime database
 - [ ] usage of nodejs
 - [ ] datasheet on express
-- [ ] add a logger on server and on front end of mean (winston + morgan on back-end),ngx-logger on front end (if made with Angular)
+- [x] add a logger on server and on front end of mean (winston + morgan on back-end),ngx-logger on front end (if made with Angular)
 - [ ] encryption
 - [ ] add a file on semantic versioning
 - [ ] add a file describing coding guideline
@@ -30,16 +32,37 @@
   - [ ] HTML/CSS
   - [ ] materialize
   - [ ] ...
-- [ ] define a generic header for source code files. 
+- [ ] define a generic header for source code files.
+  - [ ] add it into schematics
+  - [ ] get to know more about schematics modification
 - [ ] for server (with port and other parameters) look into the best usage of configuration files with json ones for instance (issue a markdown on it)
 - [ ] framework de test automatique (karma et autre)
-- [ ] outil de logging (winston)
+- [X] outil de logging (winston)
+  - [x] added into the stapmean app back end
+  - [x] ngx-logger must be added for front end
+  - [x] add morgan for http request monitoring on server
 - [ ] chaine CI/CD/CT avec docker et jenkins
 - [ ] regarder le grpc
 - [ ] faire md uniquement sur express
 - [ ] realtime database
+  - [ ] mongodb + socketio + stream
+    - [ ] https://www.mongodb.com/presentations/rapid-realtime-app-development-nodejs-mongodb
+    - [x] socket.io
+      - [x] simple chat plain js
+      - [ ] bring chat in stapler app
+        - [ ] pb with ngx-socket.io and ivvy compiler. had todeactivate it. watch the npm package for update on this.
+      - [ ] security and authentication in socket.io: use jwt 
+  - [ ] firebase
+- [ ] REST API generator
+  - [ ] Loopback
+  - [ ] ...
+- [ ] STRAPI: CMS 
+- [ ] GraphQL
+  - [ ] Appolo
 - [ ] Database
   - [ ] relational
+    - [ ] SQL
+    - [ ] Mysql
   - [ ] no relational
   - [ ] document
   - [ ] graph data bases
@@ -95,3 +118,16 @@
     - [ ] VR
     - [ ] compare them explain how they work
   - [ ] ray trace...
+- web_technologies = {
+"Core": ["HTML5", "CSS3", "JavaScript", "ES6", "DOM", "MySQL"],
+"Advance" : ["OOJS", "TypeScript", "CoffeeScript", "JSON", "AJAX"],
+"UI ": ["Bootstrap", "Sass", "Foundation", "less"],
+"Frameworks": ["React", "Redux", "Angular", "AngularJS", "Handlebars", 			       "Backbone.JS", "jQuery", "node.js"],
+"Tools": ["Bitbucket", "Webpack", "chrome dev tools", "Grunt", "Gulp", "NPM", 	  	  "Git", "SVN", "Bower"],
+"Testing": ["Mocca", "Jest", "Chai", "Karma", "Enzyme"],
+"Manage": ["Agile", "Sprint", "Scrum", "JIRA", "Kanban", "Confluence"],
+"Concepts": ["RWD", "Chrome Extension", "SPA", "TDD", "REST API"],
+"Editors" : ["VS Code", "Atom", "Notepad++","Sublime", "Webstorm"],
+"Others": ["WordPress CMS", "Chrome Dev APIs", "Google App Script", "Magento"]
+}
+
